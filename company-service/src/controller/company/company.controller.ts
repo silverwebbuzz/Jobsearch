@@ -53,4 +53,12 @@ export class CompanyController {
   public async verifydOtp(@Body() otpDto: OtpDto) {
     return await this.companyService.verifyOTP(otpDto);
   }
+
+  @ApiTags("Company")
+  @Get("/getCompanyById/:id")
+  public async getAdminById(
+    @Param("id") id: number // @Body() MasterSkillDto: masterSkillDto
+  ) {
+    return await this.companyService.getCompanyById(id);
+  }
 }

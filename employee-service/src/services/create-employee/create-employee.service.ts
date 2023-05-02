@@ -28,27 +28,35 @@ export class EmployeeService {
 
   public async create(employeeDto: EmployeeDto) {
     try {
-      const newEmployee = await this.employeeRepository.create(employeeDto);
-      const salt = await bcrypt.genSalt();
-      const encryptPassword = await bcrypt.hash(employeeDto.password, salt);
-      employeeDto.password = encryptPassword;
-      newEmployee.password = employeeDto.password;
-      const otp = Math.floor(1000 + Math.random() * 9000);
-
-      await this.mailerService.sendMail({
-        to: employeeDto.employeeEmail, // list of receivers
-        from: "ashish.swb1234@gmail.com", // sender address
-        subject: "otp", // Subject line
-        html: `${otp}`,
-
-        // html: ', // HTML body content
+        const employee = await this.employeeRepository.findOne({
+        where: [{ employeeEmail: employeeDto.employeeEmail }],
       });
-      newEmployee.otp = otp;
-      const randomId = Date.now().toString();
-      const id = randomId + Math.floor(Math.random() * 10);
-      newEmployee.employee_id = id;
-      await this.employeeRepository.save(newEmployee);
-      return { data: newEmployee, message: "Register Successfully" };
+      if(!employee){
+        const newEmployee = await this.employeeRepository.create(employeeDto);
+        const salt = await bcrypt.genSalt();
+        const encryptPassword = await bcrypt.hash(employeeDto.password, salt);
+        employeeDto.password = encryptPassword;
+        newEmployee.password = employeeDto.password;
+        const otp = Math.floor(1000 + Math.random() * 9000);
+  
+        await this.mailerService.sendMail({
+          to: employeeDto.employeeEmail, // list of receivers
+          from: "ashish.swb1234@gmail.com", // sender address
+          subject: "otp", // Subject line
+          html: `${otp}`,
+  
+          // html: ', // HTML body content
+        });
+        newEmployee.otp = otp;
+        const randomId = Date.now().toString();
+        const id = randomId + Math.floor(Math.random() * 10);
+        newEmployee.employee_id = id;
+        await this.employeeRepository.save(newEmployee);
+        return { data: newEmployee, message: "Register Successfully" };
+      }else {
+        return { data: [], message: "Email Already Exits" };
+      }
+     
     } catch (err) {
       console.log(err);
       return err;
@@ -106,7 +114,7 @@ export class EmployeeService {
     return await this.jwtService.sign(employee);
   }
 
-    public async resendOTP(otpDto: OtpDto) {
+  public async resendOTP(otpDto: OtpDto) {
     try {
       const employee = await this.employeeRepository.findOne({
         where: [{ employeeEmail: otpDto.employeeEmail }],

@@ -26,27 +26,35 @@ export class CompanyService {
 
   public async create(companyDto: CompanyDto) {
     try {
-      const newCompany = await this.companyRepository.create(companyDto);
-      const salt = await bcrypt.genSalt();
-      const encryptPassword = await bcrypt.hash(companyDto.password, salt);
-      companyDto.password = encryptPassword;
-      newCompany.password = companyDto.password;
-      const otp = Math.floor(1000 + Math.random() * 9000);
-
-      await this.mailerService.sendMail({
-        to: companyDto.companyEmail, // list of receivers
-        from: "ashish.swb1234@gmail.com", // sender address
-        subject: "otp", // Subject line
-        html: `${otp}`,
-
-        // html: ', // HTML body content
+      const company = await this.companyRepository.findOne({
+        where: [{ companyEmail: companyDto.companyEmail }],
       });
-      newCompany.otp = otp;
-      const randomId = Date.now().toString();
-      const id = randomId + Math.floor(Math.random() * 10);
-      newCompany.company_id = id;
-      await this.companyRepository.save(newCompany);
-      return { data: newCompany, message: "Register Successfully" };
+
+      if (!company) {
+        const newCompany = await this.companyRepository.create(companyDto);
+        const salt = await bcrypt.genSalt();
+        const encryptPassword = await bcrypt.hash(companyDto.password, salt);
+        companyDto.password = encryptPassword;
+        newCompany.password = companyDto.password;
+        const otp = Math.floor(1000 + Math.random() * 9000);
+
+        await this.mailerService.sendMail({
+          to: companyDto.companyEmail, // list of receivers
+          from: "ashish.swb1234@gmail.com", // sender address
+          subject: "otp", // Subject line
+          html: `${otp}`,
+
+          // html: ', // HTML body content
+        });
+        newCompany.otp = otp;
+        const randomId = Date.now().toString();
+        const id = randomId + Math.floor(Math.random() * 10);
+        newCompany.company_id = id;
+        await this.companyRepository.save(newCompany);
+        return { data: newCompany, message: "Register Successfully" };
+      } else {
+        return { data: [], message: "Email Already Exits" };
+      }
     } catch (err) {
       console.log(err);
       return err;
@@ -103,7 +111,6 @@ export class CompanyService {
     return await this.jwtService.sign(company);
   }
 
-
   public async resendOTP(otpDto: OtpDto) {
     try {
       const company = await this.companyRepository.findOne({
@@ -111,6 +118,8 @@ export class CompanyService {
       });
 
       if (company) {
+        console.log("1");
+
         const data = await this.mailerService.sendMail({
           to: otpDto.companyEmail, // list of receivers
           from: "ashish.swb1234@gmail.com", // sender address
@@ -157,6 +166,24 @@ export class CompanyService {
         return { data: [], message: "Please Enter Correct Otp" };
       }
     } catch (err) {
+      return err;
+      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  public async getCompanyById(id: number) {
+    try {
+      // const newSkill = await skillRepository.findOne(id);
+      const newCompany = await this.companyRepository.findOne({
+        where: [{ id: id }],
+      });
+      if (newCompany) {
+        return { data: newCompany, message: "Get Single Company" };
+      } else {
+        return { data: [], message: "Company Not Get" };
+      }
+    } catch (err) {
+      console.log(err);
       return err;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
