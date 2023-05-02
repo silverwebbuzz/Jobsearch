@@ -106,12 +106,12 @@ export class EmployeeService {
     return await this.jwtService.sign(employee);
   }
 
-  public async resendOTP(otpDto: OtpDto) {
+    public async resendOTP(otpDto: OtpDto) {
     try {
       const employee = await this.employeeRepository.findOne({
         where: [{ employeeEmail: otpDto.employeeEmail }],
       });
-
+      if (employee) {
       const data = await this.mailerService.sendMail({
         to: otpDto.employeeEmail, // list of receivers
         from: "ashish.swb1234@gmail.com", // sender address
@@ -124,6 +124,10 @@ export class EmployeeService {
       } else {
         return { data: [], message: "Otp Not Send" };
       }
+    }
+    else {
+      return { data: [], message: "Email Not Exits" };
+    }
     } catch (err) {
       return err;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
