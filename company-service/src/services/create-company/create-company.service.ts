@@ -103,23 +103,28 @@ export class CompanyService {
     return await this.jwtService.sign(company);
   }
 
+
   public async resendOTP(otpDto: OtpDto) {
     try {
       const company = await this.companyRepository.findOne({
         where: [{ companyEmail: otpDto.companyEmail }],
       });
 
-      const data = await this.mailerService.sendMail({
-        to: otpDto.companyEmail, // list of receivers
-        from: "ashish.swb1234@gmail.com", // sender address
-        subject: "otp", // Subject line
-        html: `${company.otp}`,
-        // html: ', // HTML body content
-      });
-      if (data) {
-        return { data: company, message: "Otp Send Successfully" };
+      if (company) {
+        const data = await this.mailerService.sendMail({
+          to: otpDto.companyEmail, // list of receivers
+          from: "ashish.swb1234@gmail.com", // sender address
+          subject: "otp", // Subject line
+          html: `${company.otp}`,
+          // html: ', // HTML body content
+        });
+        if (data) {
+          return { data: company, message: "Otp Send Successfully" };
+        } else {
+          return { data: [], message: "Otp Not Send" };
+        }
       } else {
-        return { data: [], message: "Otp Not Send" };
+        return { data: [], message: "Email Not Exits" };
       }
     } catch (err) {
       return err;
