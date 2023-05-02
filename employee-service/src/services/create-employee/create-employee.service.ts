@@ -15,6 +15,7 @@ import { JwtService } from "@nestjs/jwt";
 import { MailerService } from "@nestjs-modules/mailer";
 import { CommonMethods } from "src/utilities/common-methods";
 import { OtpDto } from "src/dto/resendOtp.dto";
+import { emitWarning } from "process";
 
 @Injectable()
 export class EmployeeService {
@@ -32,7 +33,7 @@ export class EmployeeService {
       const encryptPassword = await bcrypt.hash(employeeDto.password, salt);
       employeeDto.password = encryptPassword;
       newEmployee.password = employeeDto.password;
-      const otp = Math.floor(100000 + Math.random() * 900000);
+      const otp = Math.floor(1000 + Math.random() * 9000);
 
       await this.mailerService.sendMail({
         to: employeeDto.employeeEmail, // list of receivers
@@ -43,6 +44,9 @@ export class EmployeeService {
         // html: ', // HTML body content
       });
       newEmployee.otp = otp;
+      const randomId = Date.now().toString();
+      const id = randomId + Math.floor(Math.random() * 10);
+      newEmployee.employee_id = id;
       await this.employeeRepository.save(newEmployee);
       return { data: newEmployee, message: "Register Successfully" };
     } catch (err) {
@@ -72,18 +76,22 @@ export class EmployeeService {
           return { data: [], message: "Invalid credential" };
           // throw new UnauthorizedException('Invalid credential')
         } else {
-          return {
-            data: {
-              token: await this.signUser({
-                firstName: employee.firstName,
-                lastName: employee.lastName,
-                employeeEmail: employee.employeeEmail,
-                employeePhone: employee.employeePhone,
-              }),
-              employee,
-            },
-            message: "Login Successfully",
-          };
+          if (employee.emailVerify === 1) {
+            return {
+              data: {
+                token: await this.signUser({
+                  firstName: employee.firstName,
+                  lastName: employee.lastName,
+                  employeeEmail: employee.employeeEmail,
+                  employeePhone: employee.employeePhone,
+                }),
+                employee,
+              },
+              message: "Login Successfully",
+            };
+          } else {
+            return { data: [], message: "Email Not Verified" };
+          }
         }
       } else {
         // throw new UnauthorizedException('incorrect credentials');
@@ -139,12 +147,12 @@ export class EmployeeService {
         employee.emailVerify = 1;
         employee.save();
         if (data) {
-          return { data: employee, message: "Otp Is Correct" };
+          return { data: employee, message: "Otp Verified" };
         } else {
           return { data: [], message: "Otp Not Send" };
         }
       } else {
-        return { data: [], message: "Otp Is Wrong" };
+        return { data: [], message: "Please Enter Correct Otp" };
       }
     } catch (err) {
       return err;

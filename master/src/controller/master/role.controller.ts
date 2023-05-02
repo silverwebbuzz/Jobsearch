@@ -43,7 +43,7 @@ export class roleController {
     return await this.masterRoleService.getRoleById(id);
   }
   @ApiTags("Master Role")
-  @Post("/DeleteById/:id")
+  @Post("/DeleteBYId/:id")
   public async RoleDelete(
     @Param("id") id: number // @Body() MasterSkillDto: masterSkillDto
   ) {

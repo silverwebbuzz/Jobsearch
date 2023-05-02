@@ -14,6 +14,10 @@ export class EmployeeEntity extends BaseEntity {
   @Column({ type: "varchar", nullable: true })
   employeeEmail: string;
 
+  
+  @Column({ nullable: true })
+  employee_id: string;
+
   @Column({ type: "varchar", nullable: true })
   employeePhone: string;
 

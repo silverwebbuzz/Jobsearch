@@ -31,7 +31,7 @@ export class CompanyService {
       const encryptPassword = await bcrypt.hash(companyDto.password, salt);
       companyDto.password = encryptPassword;
       newCompany.password = companyDto.password;
-      const otp = Math.floor(100000 + Math.random() * 900000);
+      const otp = Math.floor(1000 + Math.random() * 9000);
 
       await this.mailerService.sendMail({
         to: companyDto.companyEmail, // list of receivers
@@ -42,7 +42,9 @@ export class CompanyService {
         // html: ', // HTML body content
       });
       newCompany.otp = otp;
-
+      const randomId = Date.now().toString();
+      const id = randomId + Math.floor(Math.random() * 10);
+      newCompany.company_id = id;
       await this.companyRepository.save(newCompany);
       return { data: newCompany, message: "Register Successfully" };
     } catch (err) {
@@ -72,17 +74,21 @@ export class CompanyService {
           return { data: [], message: "Invalid credential" };
           // throw new UnauthorizedException('Invalid credential')
         } else {
-          return {
-            data: {
-              token: await this.signUser({
-                companyName: company.companyName,
-                companyEmail: company.companyEmail,
-                companyPhone: company.companyPhone,
-              }),
-              company,
-            },
-            message: "Login Successfully",
-          };
+          if (company.emailVerify === 1) {
+            return {
+              data: {
+                token: await this.signUser({
+                  companyName: company.companyName,
+                  companyEmail: company.companyEmail,
+                  companyPhone: company.companyPhone,
+                }),
+                company,
+              },
+              message: "Login Successfully",
+            };
+          } else {
+            return { data: [], message: "Email Not Verified" };
+          }
         }
       } else {
         // throw new UnauthorizedException('incorrect credentials');
@@ -138,12 +144,12 @@ export class CompanyService {
         company.emailVerify = 1;
         company.save();
         if (data) {
-          return { data: company, message: "Otp Is Correct" };
+          return { data: company, message: "Otp Verified" };
         } else {
           return { data: [], message: "Otp Not Send" };
         }
       } else {
-        return { data: [], message: "Otp Is Wrong" };
+        return { data: [], message: "Please Enter Correct Otp" };
       }
     } catch (err) {
       return err;

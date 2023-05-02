@@ -44,7 +44,7 @@ export class skillController {
     return await this.MasterSkillService.getSkillById(id);
   }
 
-  @Post("/getSkillById/:id")
+  @Post("/skillDeleteById/:id")
   public async skillDelete(
     @Param("id") id: number // @Body() MasterSkillDto: masterSkillDto
   ) {
@@ -58,5 +58,10 @@ export class skillController {
     // @Body() MasterSkillDto: masterSkillDto
   ) {
     return await this.MasterSkillService.skillUpdate(id, masterSkillDto);
+  }
+
+  @Post("/payment")
+  public async payment(@Res() res) {
+    return await this.MasterSkillService.payment(res);
   }
 }

@@ -1,9 +1,18 @@
-import { PrimaryGeneratedColumn, BaseEntity, Column, Entity } from "typeorm";
+import {
+  PrimaryGeneratedColumn,
+  BaseEntity,
+  Column,
+  Entity,
+  Long,
+} from "typeorm";
 
 @Entity({ name: "Company" })
 export class CompanyEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ nullable: true })
+  company_id: string;
 
   @Column({ type: "varchar", nullable: true })
   companyName: string;
