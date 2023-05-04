@@ -13,6 +13,9 @@ import { MasterDegreeService } from "./services/master/master-Degree.service";
 import { MasterRoleService } from "./services/master/master-Role.service";
 import { MasterRole } from "./entities/masterRole.entity";
 import { MasterDegree } from "./entities/masterDegree.entity";
+import { MasterAdmin } from "./entities/masterAdmin.entity";
+import { adminController } from "./controller/master/admin.controller";
+import { MasterAdminService } from "./services/master/master-Admin.service";
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -33,6 +36,7 @@ import { MasterDegree } from "./entities/masterDegree.entity";
     TypeOrmModule.forFeature([masterSkill]),
     TypeOrmModule.forFeature([MasterDegree]),
     TypeOrmModule.forFeature([MasterRole]),
+    TypeOrmModule.forFeature([MasterAdmin]),
     HttpModule,
   ],
   controllers: [
@@ -40,12 +44,14 @@ import { MasterDegree } from "./entities/masterDegree.entity";
     skillController,
     roleController,
     degreeController,
+    adminController,
   ],
   providers: [
     AppService,
     masterSkillService,
     MasterDegreeService,
     MasterRoleService,
+    MasterAdminService,
   ],
 })
 export class AppModule {}

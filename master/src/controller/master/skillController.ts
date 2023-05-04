@@ -24,6 +24,7 @@ export class skillController {
   ) {}
 
   // User Role APIs start
+  @ApiTags("Master Skill")
   @Post("/createMasterSkill")
   public async create(
     @Body() masterSkillDto: MasterSkillDto
@@ -31,12 +32,14 @@ export class skillController {
     return await this.MasterSkillService.create(masterSkillDto);
   }
 
+  @ApiTags("Master Skill")
   @Get("/getAllSkill")
   public async getAllSkill() {
     // @Body() MasterSkillDto: masterSkillDto
     return await this.MasterSkillService.getAllSkill();
   }
 
+  @ApiTags("Master Skill")
   @Get("/getSkillById/:id")
   public async getSkillById(
     @Param("id") id: number // @Body() MasterSkillDto: masterSkillDto
@@ -44,6 +47,7 @@ export class skillController {
     return await this.MasterSkillService.getSkillById(id);
   }
 
+  @ApiTags("Master Skill")
   @Post("/skillDeleteById/:id")
   public async skillDelete(
     @Param("id") id: number // @Body() MasterSkillDto: masterSkillDto
@@ -51,6 +55,7 @@ export class skillController {
     return await this.MasterSkillService.skillDelete(id);
   }
 
+  @ApiTags("Master Skill")
   @Post("/skillUpdate/:id")
   public async DegreeUpdate(
     @Param("id") id: number,
@@ -60,6 +65,7 @@ export class skillController {
     return await this.MasterSkillService.skillUpdate(id, masterSkillDto);
   }
 
+  @ApiTags("Create Order For Payment")
   @Post("/payment")
   public async payment(@Res() res) {
     return await this.MasterSkillService.payment(res);

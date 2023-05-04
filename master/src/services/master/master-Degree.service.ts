@@ -3,30 +3,37 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { MasterDegreeDto } from 'src/dto/masterDegree.dto';
-import { MasterDegree } from 'src/entities/masterDegree.entity';
-import { Repository } from 'typeorm';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { MasterDegreeDto } from "src/dto/masterDegree.dto";
+import { MasterDegree } from "src/entities/masterDegree.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class MasterDegreeService {
   constructor(
     @InjectRepository(MasterDegree)
-    private degreeRepository: Repository<MasterDegree>,
+    private degreeRepository: Repository<MasterDegree>
   ) {}
 
   public async create(masterDegreeDto: MasterDegreeDto) {
     try {
-      const newDegree = await this.degreeRepository.create(masterDegreeDto);
-      if (newDegree) {
-        await this.degreeRepository.save(newDegree);
-        return {
-          data: newDegree,
-          message: 'Create Master-Degree Successfully',
-        };
+      const degree = await this.degreeRepository.findOne({
+        where: [{ degree: masterDegreeDto.degree }],
+      });
+      if (degree) {
+        const newDegree = await this.degreeRepository.create(masterDegreeDto);
+        if (newDegree) {
+          await this.degreeRepository.save(newDegree);
+          return {
+            data: newDegree,
+            message: "Create Master-Degree Successfully",
+          };
+        } else {
+          return { data: [], message: "fail" };
+        }
       } else {
-        return { data: [], message: 'fail' };
+        return { data: [], message: "Degree Already Exists" };
       }
     } catch (err) {
       console.log(err);
@@ -38,9 +45,9 @@ export class MasterDegreeService {
     try {
       const newDegree = await this.degreeRepository.find();
       if (newDegree) {
-        return { data: newDegree, message: 'Get All Degree' };
+        return { data: newDegree, message: "Get All Degree" };
       } else {
-        return { data: [], message: 'Degree Not Get' };
+        return { data: [], message: "Degree Not Get" };
       }
     } catch (err) {
       console.log(err);
@@ -56,9 +63,9 @@ export class MasterDegreeService {
         where: [{ id: id }],
       });
       if (newDegree) {
-        return { data: newDegree, message: 'Get Single Degree' };
+        return { data: newDegree, message: "Get Single Degree" };
       } else {
-        return { data: [], message: 'Degree Not Get' };
+        return { data: [], message: "Degree Not Get" };
       }
     } catch (err) {
       console.log(err);
@@ -69,13 +76,20 @@ export class MasterDegreeService {
 
   public async DegreeDelete(id: number) {
     try {
-      // const newSkill = await skillRepository.findOne(id);
-      const newDegree = await this.degreeRepository.delete(id);
-      if (newDegree) {
-        return { data: [], message: 'Delete Degree' };
+      const degree = await this.degreeRepository.findOne({
+        where: [{ id: id }],
+      });
+      if (degree) {
+        const newDegree = await this.degreeRepository.delete(id);
+        if (newDegree) {
+          return { data: [], message: "Delete Degree" };
+        } else {
+          return { data: [], message: "Degree Not Delete" };
+        }
       } else {
-        return { data: [], message: 'Degree Not Delete' };
+        return { data: [], message: "Degree Not Exists" };
       }
+      // const newSkill = await skillRepository.findOne(id);
     } catch (err) {
       console.log(err);
       return err;
@@ -85,17 +99,24 @@ export class MasterDegreeService {
 
   public async DegreeUpdate(id: number, masterDegreeDto: MasterDegreeDto) {
     try {
-      // const newSkill = await skillRepository.findOne(id);
-      const updateDegree = await this.degreeRepository.update(
-        id,
-        masterDegreeDto,
-      );
+      const degree = await this.degreeRepository.findOne({
+        where: [{ id: id }],
+      });
+      if (degree) {
+        const updateDegree = await this.degreeRepository.update(
+          id,
+          masterDegreeDto
+        );
 
-      if (updateDegree) {
-        return { data: updateDegree, message: 'Update Degree' };
+        if (updateDegree) {
+          return { data: updateDegree, message: "Update Degree" };
+        } else {
+          return { data: [], message: "Degree Not Update" };
+        }
       } else {
-        return { data: [], message: 'Degree Not Update' };
+        return { data: [], message: "Degree Not Exists" };
       }
+      // const newSkill = await skillRepository.findOne(id);
     } catch (err) {
       console.log(err);
       return err;

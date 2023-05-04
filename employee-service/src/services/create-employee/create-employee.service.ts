@@ -54,12 +54,12 @@ export class EmployeeService {
         await this.employeeRepository.save(newEmployee);
         return { data: newEmployee, message: "Register Successfully" };
       }else {
-        return { data: [], message: "Email Already Exits" };
+        return { data: [], message: "Email Already Exists" };
       }
      
     } catch (err) {
       console.log(err);
-      return err;
+      return err;;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
@@ -134,10 +134,10 @@ export class EmployeeService {
       }
     }
     else {
-      return { data: [], message: "Email Not Exits" };
+      return { data: [], message: "Email Not Exists" };
     }
     } catch (err) {
-      return err;
+      return err;;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
@@ -167,7 +167,7 @@ export class EmployeeService {
         return { data: [], message: "Please Enter Correct Otp" };
       }
     } catch (err) {
-      return err;
+      return err;;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }

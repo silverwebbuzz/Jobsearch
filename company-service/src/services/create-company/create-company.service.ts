@@ -53,11 +53,11 @@ export class CompanyService {
         await this.companyRepository.save(newCompany);
         return { data: newCompany, message: "Register Successfully" };
       } else {
-        return { data: [], message: "Email Already Exits" };
+        return { data: [], message: "Email Already Exists" };
       }
     } catch (err) {
       console.log(err);
-      return err;
+      return err;;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
@@ -99,6 +99,7 @@ export class CompanyService {
           }
         }
       } else {
+        return { data: [], message: "Email Not Exists" };
         // throw new UnauthorizedException('incorrect credentials');
       }
     }
@@ -118,7 +119,7 @@ export class CompanyService {
       });
 
       if (company) {
-        console.log("1");
+        
 
         const data = await this.mailerService.sendMail({
           to: otpDto.companyEmail, // list of receivers
@@ -133,10 +134,10 @@ export class CompanyService {
           return { data: [], message: "Otp Not Send" };
         }
       } else {
-        return { data: [], message: "Email Not Exits" };
+        return { data: [], message: "Email Not Exists" };
       }
     } catch (err) {
-      return err;
+      return err;;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
@@ -166,7 +167,7 @@ export class CompanyService {
         return { data: [], message: "Please Enter Correct Otp" };
       }
     } catch (err) {
-      return err;
+      return err;;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
@@ -184,7 +185,7 @@ export class CompanyService {
       }
     } catch (err) {
       console.log(err);
-      return err;
+      return err;;
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
