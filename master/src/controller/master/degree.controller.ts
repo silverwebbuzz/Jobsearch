@@ -12,8 +12,9 @@ import {
 import { ApiProperty, ApiTags } from "@nestjs/swagger";
 
 import { MasterDegreeService } from "src/services/master/master-Degree.service";
-import { MasterDegree } from "src/entities/masterDegree.entity";
-import { MasterDegreeDto } from "src/dto/masterDegree.dto";
+import { MasterDegree } from "src/entities/master/masterDegree.entity";
+import { MasterDegreeDto } from "src/dto/master/masterDegree.dto";
+import { QueryOptions } from "src/dto/paginationDto";
 
 // @ApiTags("User Role")
 @Controller()
@@ -32,8 +33,10 @@ export class degreeController {
   }
   @ApiTags("Master Degree")
   @Get("/getAllDegree")
-  public async getAllDegree(): Promise<MasterDegree> {
-    return await this.masterDegreeService.getAllDegree();
+  public async getAllDegree(
+    @Query() paginationDto: QueryOptions
+  ): Promise<MasterDegree> {
+    return await this.masterDegreeService.getAllDegree(paginationDto);
   }
   @ApiTags("Master Degree")
   @Get("/getDegreeById/:id")
@@ -43,7 +46,7 @@ export class degreeController {
     return await this.masterDegreeService.getDegreeById(id);
   }
   @ApiTags("Master Degree")
-  @Post("/DeleteById/:id")
+  @Post("/degreeDeleteById/:id")
   public async DegreeDelete(
     @Param("id") id: number // @Body() MasterSkillDto: masterSkillDto
   ) {

@@ -25,6 +25,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("master", app, document);
 
-  await app.listen(5003);
+  app.listen(5003, "192.168.1.113", function () {
+    console.log("Server running at http://192.168.1.116:5003/");
+  });
+
+  // app.listen(5003, "192.168.1.116", function () {
+  //   console.log("Server running at http://127.0.1.1:8000/");
+  // });
 }
 bootstrap();

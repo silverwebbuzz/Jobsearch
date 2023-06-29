@@ -9,7 +9,20 @@ import { MailerModule } from "@nestjs-modules/mailer";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { CompanyController } from "./controller/company/company.controller";
 import { CompanyService } from "./services/create-company/create-company.service";
-import { CompanyEntity } from "./entities/company.entity";
+import { CompanyEntity } from "./entities/company/company.entity";
+import { masterSkill } from "./entities/master/masterSkill.entity";
+import { CompanyJobPreferenceEntity } from "./entities/company/company-jobpreference.entity";
+import { JobPreferenceController } from "./controller/jobPreference/jobPreference.controller";
+import { JobService } from "./services/company-jobpreference/company-jobpreference.service";
+import { MasterRole } from "./entities/master/masterRole.entity";
+import { JobCategory } from "./entities/master/jobCategory.entity";
+import { BalanceTokenEntity } from "./entities/balanceToken.entity";
+import { BalanceTokenService } from "./services/balanceToken/balanceToken.service";
+import { BalanceTokenController } from "./controller/balanceToken/balanceToken.controller";
+import { EmployeeService } from "./services/employee/employee.service";
+import { EmployeeController } from "./controller/employee/employee.controller";
+import { EmployeeEntity } from "./entities/employee/employee.entity";
+import { JobApplyEntity } from "./entities/company/jobApply.entity";
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -28,6 +41,13 @@ import { CompanyEntity } from "./entities/company.entity";
       // logging: true,
     }),
     TypeOrmModule.forFeature([CompanyEntity]),
+    TypeOrmModule.forFeature([masterSkill]),
+    TypeOrmModule.forFeature([MasterRole]),
+    TypeOrmModule.forFeature([JobCategory]),
+    TypeOrmModule.forFeature([CompanyJobPreferenceEntity]),
+    TypeOrmModule.forFeature([BalanceTokenEntity]),
+    TypeOrmModule.forFeature([EmployeeEntity]),
+    TypeOrmModule.forFeature([JobApplyEntity]),
     HttpModule,
     JwtModule.register({
       secret: "my-super-secret",
@@ -64,7 +84,19 @@ import { CompanyEntity } from "./entities/company.entity";
       inject: [ConfigService],
     }),
   ],
-  controllers: [AppController, CompanyController],
-  providers: [AppService, CompanyService],
+  controllers: [
+    AppController,
+    CompanyController,
+    JobPreferenceController,
+    BalanceTokenController,
+    EmployeeController,
+  ],
+  providers: [
+    AppService,
+    CompanyService,
+    JobService,
+    BalanceTokenService,
+    EmployeeService,
+  ],
 })
 export class AppModule {}

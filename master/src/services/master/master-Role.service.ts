@@ -5,8 +5,9 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { MasterRoleDto } from "src/dto/masterRole.dto";
-import { MasterRole } from "src/entities/masterRole.entity";
+import { MasterRoleDto } from "src/dto/master/masterRole.dto";
+import { QueryOptions } from "src/dto/paginationDto";
+import { MasterRole } from "src/entities/master/masterRole.entity";
 import { Repository } from "typeorm";
 
 @Injectable()
@@ -19,9 +20,9 @@ export class MasterRoleService {
   public async create(masterRoleDto: MasterRoleDto) {
     try {
       const role = await this.roleRepository.findOne({
-        where: [{ name: masterRoleDto.name }],
+        where: [{ roleName: masterRoleDto.roleName }],
       });
-      if (role) {
+      if (!role) {
         const newRole = this.roleRepository.create(masterRoleDto);
         if (newRole) {
           await this.roleRepository.save(newRole);
@@ -35,27 +36,37 @@ export class MasterRoleService {
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
-  public async getAllRole() {
+  public async getAllRole(queryOptions: QueryOptions) {
     try {
-      const newRole = await this.roleRepository.find();
-      if (newRole) {
-        return { data: newRole, message: "Get All Role" };
+      let page: number = queryOptions.page || 1;
+      let limit: number = queryOptions.limit || 20;
+      let keyword: string = queryOptions.search || "";
+      const data = this.roleRepository
+        .createQueryBuilder("masterRoll")
+        .orderBy("masterRoll.createdAt", "DESC")
+        .where("masterRoll.roleName ILIKE :q", { q: `%${keyword}%` });
+
+      let total = await data.getCount();
+      data.offset((page - 1) * limit).limit(limit);
+      if (data) {
+        return {
+          data: await data.getMany(),
+          total: total,
+          message: "Get All Role",
+        };
       } else {
         return { data: [], message: "Role Not Get" };
       }
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
   public async getRoleById(id: number) {
     try {
-      // const newSkill = await skillRepository.findOne(id);
       const newRole = await this.roleRepository.findOne({
         where: [{ id: id }],
       });
@@ -67,7 +78,6 @@ export class MasterRoleService {
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -86,12 +96,9 @@ export class MasterRoleService {
       } else {
         return { data: [], message: "Role Not Exists" };
       }
-
-      // const newSkill = await skillRepository.findOne(id);
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -104,18 +111,19 @@ export class MasterRoleService {
         const updateRole = await this.roleRepository.update(id, masterRoleDto);
 
         if (updateRole) {
-          return { data: updateRole, message: "Update Role" };
+          const newRole = await this.roleRepository.findOne({
+            where: [{ id: id }],
+          });
+          return { data: newRole, message: "Update Role" };
         } else {
           return { data: [], message: "Role Not Update" };
         }
       } else {
         return { data: [], message: "Role Not Exists" };
       }
-      // const newSkill = await skillRepository.findOne(id);
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 }

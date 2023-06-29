@@ -5,8 +5,9 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { MasterDegreeDto } from "src/dto/masterDegree.dto";
-import { MasterDegree } from "src/entities/masterDegree.entity";
+import { MasterDegreeDto } from "src/dto/master/masterDegree.dto";
+import { QueryOptions } from "src/dto/paginationDto";
+import { MasterDegree } from "src/entities/master/masterDegree.entity";
 import { Repository } from "typeorm";
 
 @Injectable()
@@ -21,7 +22,7 @@ export class MasterDegreeService {
       const degree = await this.degreeRepository.findOne({
         where: [{ degree: masterDegreeDto.degree }],
       });
-      if (degree) {
+      if (!degree) {
         const newDegree = await this.degreeRepository.create(masterDegreeDto);
         if (newDegree) {
           await this.degreeRepository.save(newDegree);
@@ -41,11 +42,29 @@ export class MasterDegreeService {
       // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
-  public async getAllDegree() {
+  public async getAllDegree(queryOptions: QueryOptions) {
     try {
-      const newDegree = await this.degreeRepository.find();
-      if (newDegree) {
-        return { data: newDegree, message: "Get All Degree" };
+      let page: number = queryOptions.page || 1;
+      let limit: number = queryOptions.limit || 20;
+      let keyword: string = queryOptions.search || "";
+      // const page = options.page || 1;
+      // const limit = options.limit || 20;
+      // const newSkill = await this.skillRepository.find();
+      const data = this.degreeRepository
+        .createQueryBuilder("masterDegree")
+        .orderBy("masterDegree.createdAt", "DESC")
+        .where("masterDegree.degree ILIKE :q", { q: `%${keyword}%` });
+
+      let total = await data.getCount();
+      data.offset((page - 1) * limit).limit(limit);
+      // console.log(qb);
+
+      if (data) {
+        return {
+          data: await data.getMany(),
+          total: total,
+          message: "Get All Degree",
+        };
       } else {
         return { data: [], message: "Degree Not Get" };
       }
@@ -109,7 +128,10 @@ export class MasterDegreeService {
         );
 
         if (updateDegree) {
-          return { data: updateDegree, message: "Update Degree" };
+          const newDegree = await this.degreeRepository.findOne({
+            where: [{ id: id }],
+          });
+          return { data: newDegree, message: "Update Degree" };
         } else {
           return { data: [], message: "Degree Not Update" };
         }

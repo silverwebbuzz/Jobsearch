@@ -12,8 +12,9 @@ import {
 import { ApiProperty, ApiTags } from "@nestjs/swagger";
 
 import { MasterRoleService } from "src/services/master/master-Role.service";
-import { MasterRole } from "src/entities/masterRole.entity";
-import { MasterRoleDto } from "src/dto/masterRole.dto";
+import { MasterRole } from "src/entities/master/masterRole.entity";
+import { MasterRoleDto } from "src/dto/master/masterRole.dto";
+import { QueryOptions } from "src/dto/paginationDto";
 
 // @ApiTags("User Role")
 @Controller()
@@ -32,8 +33,10 @@ export class roleController {
   }
   @ApiTags("Master Role")
   @Get("/getAllRole")
-  public async getAllRole(): Promise<MasterRole> {
-    return await this.masterRoleService.getAllRole();
+  public async getAllRole(
+    @Query() paginationDto: QueryOptions
+  ): Promise<MasterRole> {
+    return await this.masterRoleService.getAllRole(paginationDto);
   }
   @ApiTags("Master Role")
   @Get("/getRoleById/:id")

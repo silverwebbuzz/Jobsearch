@@ -5,16 +5,10 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import {
-  CFConfig,
-  CFCustomerDetails,
-  CFEnvironment,
-  CFOrderRequest,
-  CFPaymentGateway,
-} from "cashfree-pg-sdk-nodejs";
-import { MasterSkillDto } from "src/dto/masterSkill.dto";
-import { masterSkill } from "src/entities/masterSkill.entity";
+import { MasterSkillDto } from "src/dto/master/masterSkill.dto";
+import { masterSkill } from "src/entities/master/masterSkill.entity";
 import { Repository } from "typeorm";
+import { QueryOptions } from "src/dto/paginationDto";
 
 @Injectable()
 export class masterSkillService {
@@ -26,10 +20,12 @@ export class masterSkillService {
   public async create(masterSkillDTO: MasterSkillDto) {
     try {
       const skill = await this.skillRepository.findOne({
-        where: [{ name: masterSkillDTO.name }],
+        where: [{ skillName: masterSkillDTO.skillName }],
       });
-      if (skill) {
-        const newSkill = await this.skillRepository.create(masterSkillDTO);
+      console.log(skill);
+
+      if (!skill) {
+        const newSkill = this.skillRepository.create(masterSkillDTO);
         await this.skillRepository.save(newSkill);
         return { data: newSkill, message: "Skill Add Successfully" };
       } else {
@@ -38,22 +34,35 @@ export class masterSkillService {
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
-  public async getAllSkill() {
+  public async getAllSkill(queryOptions: QueryOptions) {
     try {
-      const newSkill = await this.skillRepository.find();
-      if (newSkill) {
-        return { data: newSkill, message: "Get All Skill" };
+      let page: number = queryOptions.page || 1;
+      let limit: number = queryOptions.limit || 20;
+      let keyword: string = queryOptions.search || "";
+  
+      const data = this.skillRepository
+        .createQueryBuilder("masterSkill")
+        .orderBy("masterSkill.createdAt", "DESC")
+        .where("masterSkill.skillName ILIKE :q", { q: `%${keyword}%` });
+
+      let total = await data.getCount();
+      data.offset((page - 1) * limit).limit(limit);
+
+      if (data) {
+        return {
+          data: await data.getMany(),
+          total: total,
+          message: "Get All Skill",
+        };
       } else {
         return { data: [], message: "Skill Not Get" };
       }
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -68,11 +77,9 @@ export class masterSkillService {
         return { data: [], message: "Skill Not Get" };
       }
 
-      // const newSkill = await skillRepository.findOne(id);
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -89,13 +96,11 @@ export class masterSkillService {
           return { data: [], message: "Skill Not Delete" };
         }
       } else {
-        return { data: [], message: "Company Not Exists" };
+        return { data: [], message: "Skill Not Exists" };
       }
-      // const newSkill = await skillRepository.findOne(id);
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -119,13 +124,11 @@ export class masterSkillService {
           return { data: [], message: "Skill Not Update" };
         }
       } else {
-        return { data: [], message: "Company Not Exists" };
+        return { data: [], message: "Skill Not Exists" };
       }
-      // const newSkill = await skillRepository.findOne(id);
     } catch (err) {
       console.log(err);
       return err;
-      // throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
