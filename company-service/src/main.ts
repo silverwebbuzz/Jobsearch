@@ -27,7 +27,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("company", app, document);
 
-  app.listen(5001, "192.168.1.113", function () {
+  app.listen(5001, "192.168.1.13", function () {
     console.log("Server running at http://192.168.1.116:5001/");
   });
 
